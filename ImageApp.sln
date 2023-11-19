@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InitialDatabase", "InitialDatabase\InitialDatabase.csproj", "{B2F56ABB-1C9A-4A3F-8CB5-49EE691CD3EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppUI", "AppUI\AppUI.csproj", "{BF700D37-2569-41F8-92C8-7E6EA84893E9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageAppCLI", "ImageAppCLI\ImageAppCLI.csproj", "{4C51F490-91F5-4777-B1E9-BB569F1C4919}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppDB", "AppDB\AppDB.csproj", "{27E45958-08A0-49E7-A809-3AFFC56E309E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTK.WinForms", "..\..\..\..\..\dev\GLControl\GLControl\OpenTK.WinForms\OpenTK.WinForms.csproj", "{CF25F458-5018-47DC-80EA-CEFB5BFA9D77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAppUI", "WpfAppUI\WpfAppUI.csproj", "{181D5CC5-FCBE-4EDE-8238-3444ECAB0347}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2F56ABB-1C9A-4A3F-8CB5-49EE691CD3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F56ABB-1C9A-4A3F-8CB5-49EE691CD3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F56ABB-1C9A-4A3F-8CB5-49EE691CD3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F56ABB-1C9A-4A3F-8CB5-49EE691CD3EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF700D37-2569-41F8-92C8-7E6EA84893E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF700D37-2569-41F8-92C8-7E6EA84893E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF700D37-2569-41F8-92C8-7E6EA84893E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF700D37-2569-41F8-92C8-7E6EA84893E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C51F490-91F5-4777-B1E9-BB569F1C4919}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C51F490-91F5-4777-B1E9-BB569F1C4919}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C51F490-91F5-4777-B1E9-BB569F1C4919}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C51F490-91F5-4777-B1E9-BB569F1C4919}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27E45958-08A0-49E7-A809-3AFFC56E309E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27E45958-08A0-49E7-A809-3AFFC56E309E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27E45958-08A0-49E7-A809-3AFFC56E309E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27E45958-08A0-49E7-A809-3AFFC56E309E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF25F458-5018-47DC-80EA-CEFB5BFA9D77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF25F458-5018-47DC-80EA-CEFB5BFA9D77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF25F458-5018-47DC-80EA-CEFB5BFA9D77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF25F458-5018-47DC-80EA-CEFB5BFA9D77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{181D5CC5-FCBE-4EDE-8238-3444ECAB0347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{181D5CC5-FCBE-4EDE-8238-3444ECAB0347}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{181D5CC5-FCBE-4EDE-8238-3444ECAB0347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{181D5CC5-FCBE-4EDE-8238-3444ECAB0347}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {25223825-5714-4B8B-8A28-438FA8DA55BA}
+	EndGlobalSection
+EndGlobal

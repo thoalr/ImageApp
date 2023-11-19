@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CyotekImageBox" Version="2.0.0-beta.2" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
+    <PackageReference Include="OpenTK" Version="3.1.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
+    <PackageReference Include="SkiaSharp.Views" Version="2.88.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\dev\GLControl\GLControl\OpenTK.WinForms\OpenTK.WinForms.csproj" />
+    <ProjectReference Include="..\AppDB\AppDB.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Using Remove="SixLabors.ImageSharp" />
+		<Using Remove="SixLabors.ImageSharp.PixelFormats" />
+		<Using Remove="SixLabors.ImageSharp.Processing" />
+	</ItemGroup>
+	
+</Project>
