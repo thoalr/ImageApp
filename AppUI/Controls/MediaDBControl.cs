@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AppUI.Utilities;
+using AppDB;
 
 namespace AppUI
 {
@@ -21,18 +22,18 @@ namespace AppUI
 
         IList<string> files;
         IList<string> filteredFiles;
-        public media_databaseContext dbc;
+        MediaDBService db;
 
         public MediaDBControl()
         {
             InitializeComponent();
         }
 
-        public MediaDBControl(string directory, media_databaseContext dbc)
+        public MediaDBControl(string directory, MediaDBService dBService)
         {
             InitializeComponent();
             currentDirectory = directory;
-            this.dbc = dbc;
+            this.db = dBService;
             files = new List<string>(Directory.EnumerateFiles(currentDirectory).ToList());
             //listView1.DataContext = files;
             //listView1.Update();
@@ -51,13 +52,13 @@ namespace AppUI
             listView1.Columns.Add("File list", listItems.OrderByDescending(s => s.Text.Length).Select(s => (int)(s.Text.Length * 6.4)).FirstOrDefault(800));
             listView1.Items.AddRange(listItems);
 
-            comboBox2.Items.AddRange(dbc.TagTypes.Select(t => t.TypeName).ToArray());
+            comboBox2.Items.AddRange(db.GetTagTypes().Select(t => t.TypeName).ToArray());
             comboBox2.SelectedIndex = 0;
             comboBox2.AutoCompleteSource = AutoCompleteSource.ListItems;
             comboBox2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
 
             var autoCompleteSource = new AutoCompleteStringCollection();
-            autoCompleteSource.AddRange(dbc.Tags.Select(t => t.Tag1).ToArray());
+            autoCompleteSource.AddRange(db.GetTags().Select(t => t.Tag1).ToArray());
             textBox2.AutoCompleteCustomSource = autoCompleteSource;
             textBox2.AutoCompleteSource = AutoCompleteSource.CustomSource;
             textBox2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -117,43 +118,10 @@ namespace AppUI
         // add tag to current search range
         private void button1_Click(object sender, EventArgs e)
         {
-            // find all files already in database
+            var tag = db.AddTagIfNotExists(comboBox1.Text, comboBox2.Text);
 
-            var existingMedia = dbc.Media.Where(m => filteredFiles.Contains(m.Location));
-
-
-            // find if tag exists in database
-            var tag = comboBox1.Text;
-            var existingTag = dbc.Tags.Where(t => t.Tag1 == tag).ToList().DefaultIfEmpty(null).First();
-
-
-            // find if tagtype exists in database
-            var tagType = comboBox2.Text;
-            var existingTagType = dbc.TagTypes.Where(t => t.TypeName == tagType).ToList().DefaultIfEmpty(null).First();
-            if (existingTagType == null)
-            {
-                existingTagType = new TagType { TypeName = tagType };
-            }
-            if (existingTag == null)
-            {
-                existingTag = new Tag { Tag1 = tag, TagType = existingTagType };
-            }
-
-            // add tag to all files where it has not already been added
-            var newMedia = new List<Media>();
-            foreach (var file in filteredFiles)
-            {
-                if (existingMedia.Any(m => m.Location == file)) { continue; }
-                else
-                {
-                    newMedia.Add(new Media { Location = file, Tags = { existingTag } });
-                }
-            }
-            var mediaHasTag = dbc.Media.Where(m => m.Tags.Contains(existingTag));
-            var task = existingMedia.Except(mediaHasTag).ForEachAsync(m => m.Tags.Add(existingTag));
-            task.Wait();
-            dbc.Media.AddRange(newMedia);
-            dbc.SaveChanges();
+            var media = db.AddMediaRangeIfNotExists(filteredFiles);
+            db.AddTagToMedia(media, tag);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -171,7 +139,7 @@ namespace AppUI
             var searchString = comboBox1.Text;
             if (searchString.Length < 3) { return; }
             comboBox1.Items.Clear();
-            comboBox1.Items.AddRange(dbc.Tags.Where(t => t.Tag1.Contains(searchString)).Select(t => t.Tag1).ToArray());
+            comboBox1.Items.AddRange(db.QueryTagsContain(searchString).Select(t => t.Tag1).ToArray());
             comboBox1.Select(searchString.Length, 0);
 
         }

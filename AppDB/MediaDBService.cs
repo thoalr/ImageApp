@@ -10,7 +10,7 @@ namespace AppDB
 {
     public class MediaDBService
     {
-        private media_databaseContext _context = new media_databaseContext();
+        private static media_databaseContext _context = new media_databaseContext();
 
         public MediaDBService() 
         {
@@ -87,9 +87,83 @@ namespace AppDB
             return existingMedia;
         }
 
+        public IEnumerable<Media> GetMedia()
+        {
+            var existingMedia = _context.Media.Select(s=>s);
+            return existingMedia;
+        }
+
+        public IEnumerable<TagType> GetTagTypes()
+        {
+            var tagTypes = _context.TagTypes.Select(s=>s);
+            return tagTypes;
+        }
+
+        public IEnumerable<Tag> GetTags()
+        {
+            var tags = _context.Tags.Select(s => s);
+            return tags;
+        }
+
+        public IEnumerable<Tag> QueryTagsContain(string searchString)
+        {
+            var result = _context.Tags.Where(t => t.Tag1.Contains(searchString));
+            return result;
+        }
+
+
+        /// <summary>
+        /// Parses search string into tags that should be and should not be associated with a media
+        /// </summary>
+        /// <param name="searchString"></param>
+        /// <returns>First item are the tags the media should have. The second item are the tags the media should not have</returns>
+        public Tuple<IEnumerable<Tag> , IEnumerable<Tag>> ParseSearchString(string searchString)
+        {
+            var searchTerms =
+                searchString.Trim().Split(' ').Where(s => (s != "-" && s.Length > 0))
+                    .Select(s =>
+                    {
+                        var tags = new List<Tag>();
+                        var tmps = s.Trim();
+                        bool neg = tmps.StartsWith('-');
+                        if (neg) tmps = tmps.Substring(1);
+                        if (!tmps.Contains('*')) tags.AddRange(_context.Tags.Where(t => t.Tag1 == tmps).Take(1));
+                        if (tmps.EndsWith('*') && tmps.StartsWith('*'))
+                            tags.AddRange(_context.Tags.Where(t => t.Tag1.Contains(tmps.Trim('*'))).ToList());
+                        else if (tmps.EndsWith('*'))
+                            tags.AddRange(_context.Tags.Where(t => t.Tag1.StartsWith(tmps.Trim('*'))).ToList());
+                        else if (tmps.StartsWith('*'))
+                            tags.AddRange(_context.Tags.Where(t => t.Tag1.EndsWith(tmps.Trim('*'))).ToList());
+                        return new { Negative = neg, Tags = tags };
+                    })
+                    .AsEnumerable();
+            var hasTags = searchTerms.Where(st => !st.Negative).SelectMany(st => st.Tags);
+            var hasNotTags = searchTerms.Where(st => st.Negative).SelectMany(st => st.Tags);
+            return new Tuple<IEnumerable<Tag>, IEnumerable<Tag>>(hasTags, hasNotTags);
+        }
+
         public IEnumerable<Media> GetMediaFromTags(IEnumerable<Tag> hasTags, IEnumerable<Tag> hasNotTags)
         {
-            return null;
+            // probably pretty expensive operation
+            //var newFileList = dbc.Media
+            //    .Where(m =>
+            //        hasTags.All(t => m.Tags.Contains(t))
+            //        &&
+            //        hasNotTags.Any(t => m.Tags.Contains(t))
+            //        );
+            
+            // attempt to optimize by successively querying smaller and smaller sets
+            var filteredMedia = _context.Media.Select(s => s);
+            foreach (var tag in hasTags)
+            {
+                filteredMedia = filteredMedia.Where(m => m.Tags.Contains(tag));
+            }
+            // is it faster to start with negatives or positives?
+            foreach (var tag in hasNotTags)
+            {
+                filteredMedia = filteredMedia.Where(m => !m.Tags.Contains(tag));
+            }
+            return filteredMedia;
         }
 
         

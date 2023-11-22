@@ -1,4 +1,5 @@
-﻿using AppDB.Models;
+﻿using AppDB;
+using AppDB.Models;
 using AppUI.Utilities;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -27,15 +28,15 @@ namespace AppUI
         int currentIndex = 0;
 
         string[] validExtensions = { ".jpg", ".JPG", ".jpeg", ".png", ".gif", ".webp" };
-        media_databaseContext dbc;
+        MediaDBService db;
 
-        public ImageDBBrowseControl(media_databaseContext dbc)
+        public ImageDBBrowseControl(MediaDBService db)
         {
             InitializeComponent();
             //imageBox1.Image = Image.FromFile(imageFilePath);
             imageViewerControl1.NextImage += OnNextImage;
             imageViewerControl1.PrevImage += OnPrevImage;
-            this.dbc = dbc;
+            this.db = db;
         }
 
         void OnNextImage(object? sender, EventArgs e)
@@ -61,7 +62,7 @@ namespace AppUI
 
         public void InitBrowsing(string initialFile)
         {
-            var list = dbc.Media.ToList();
+            var list = db.GetMedia().ToList();
 
             // imageFiles = list.Select(x => x).ToList();
             filteredFiles = list.Select(s => s).ToList();
@@ -96,7 +97,12 @@ namespace AppUI
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            
+
+        }
+
+        private (bool, List<string>) stringToSearchTerms(string input)
+        {
+            return (false, new List<string>() { input });
         }
 
         private void FilterTags()
@@ -111,46 +117,10 @@ namespace AppUI
             var currentFile = filteredFiles[currentIndex];
 
             var searchString = textBox1.Text;
-            var searchTerms =
-                searchString.Trim().Split(' ').Where(s => (s != "-" && s.Length > 0))
-                    .Select(s =>
-                    {
-                        var tags = new List<Tag>();
-                        var tmps = s.Trim();
-                        bool neg = tmps.StartsWith('-');
-                        if (neg) tmps = tmps.Substring(1);
-                        if (!tmps.Contains('*')) tags.AddRange(dbc.Tags.Where(t => t.Tag1 == tmps).Take(1));
-                        if (tmps.EndsWith('*') && tmps.StartsWith('*'))
-                            tags.AddRange(dbc.Tags.Where(t => t.Tag1.Contains(tmps.Trim('*'))).ToList());
-                        else if (tmps.EndsWith('*')) 
-                            tags.AddRange(dbc.Tags.Where(t => t.Tag1.StartsWith(tmps.Trim('*'))).ToList());
-                        else if (tmps.StartsWith('*')) 
-                            tags.AddRange(dbc.Tags.Where(t => t.Tag1.EndsWith(tmps.Trim('*'))).ToList());
-                        return new { Negative = neg, Tags = tags };
-                    })
-                    .AsEnumerable();
-            var hasTags = searchTerms.Where(st => !st.Negative).SelectMany(st => st.Tags);
-            var hasNotTags = searchTerms.Where(st => st.Negative).SelectMany(st => st.Tags);
-
-            // probably pretty expensive operation
-            var newFileList = dbc.Media
-                .Where(m => 
-                    hasTags.All(t => m.Tags.Contains(t)) 
-                    && 
-                    hasNotTags.Any(t => m.Tags.Contains(t))
-                    );
-            // attempt to optimize by successively querying smaller and smaller sets
-            var filteredMedia = dbc.Media.Select(s=>s);
-            foreach(var tag in hasTags)
-            {
-                filteredMedia = filteredMedia.Where( m => m.Tags.Contains(tag) );
-            }
-            foreach(var tag in hasNotTags)
-            {
-                filteredMedia = filteredMedia.Where(m => !m.Tags.Contains(tag));
-            }
             
-
+            var (hasTags, hasNotTags) = db.ParseSearchString(searchString);
+            var filteredMedia = db.GetMediaFromTags(hasTags, hasNotTags);
+            
             filteredFiles = filteredMedia.ToList();
             if (filteredFiles.Contains(currentFile))
             {
