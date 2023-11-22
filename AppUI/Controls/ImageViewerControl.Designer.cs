@@ -42,12 +42,9 @@
             skglControl1.TabIndex = 0;
             skglControl1.VSync = true;
             skglControl1.PaintSurface += skglControl1_PaintSurface;
-            skglControl1.DoubleClick += skglControl1_DoubleClick;
-            skglControl1.KeyDown += skglControl1_KeyDown;
             skglControl1.MouseDown += skglControl1_MouseDown;
             skglControl1.MouseMove += skglControl1_MouseMove;
             skglControl1.MouseUp += skglControl1_MouseUp;
-            skglControl1.Resize += skglControl1_Resize;
             // 
             // ImageViewerControl
             // 

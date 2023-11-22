@@ -1,4 +1,5 @@
 using AppDB.Models;
+using System;
 using System.Windows.Forms;
 
 namespace AppUI
@@ -9,8 +10,9 @@ namespace AppUI
 
 
         MediaDBControl mediaDBControl1;
-        media_databaseContext dbc;
+        media_databaseContext dbc = new media_databaseContext();
         ImageFileBrowseControl fileBrowseControl1;
+        ImageDBBrowseControl dBBrowseControl1;
 
         string? lastFileFromFileSystem;
         enum AppView
@@ -98,6 +100,10 @@ namespace AppUI
             {
                 view = AppView.FolderImageBrowser;
             }
+            if (file == null && (view != AppView.Empty || view != AppView.DatabaseImageBrowser))
+            {
+                return;
+            }
             switch (view)
             {
                 case AppView.Empty:
@@ -106,6 +112,7 @@ namespace AppUI
                     break;
                 case AppView.FolderImageBrowser:
                     mediaDBControl1?.Hide();
+                    dBBrowseControl1?.Hide();
                     if (fileBrowseControl1 == null)
                     {
                         fileBrowseControl1 = new ImageFileBrowseControl();
@@ -118,12 +125,29 @@ namespace AppUI
                     fileBrowseControl1!.Show();
                     break;
                 case AppView.DatabaseImageBrowser:
+                    mediaDBControl1?.Hide();
+                    fileBrowseControl1?.Hide();
+                    if (dBBrowseControl1 == null)
+                    {
+                        if(dbc.Media.Count() == 0)
+                        {
+                            MessageBox.Show("No images in database\nBrowsing not available");
+                            return;
+                        }
+                        dBBrowseControl1 = new ImageDBBrowseControl(dbc);
+                        dBBrowseControl1.Dock = DockStyle.Fill;
+                        dBBrowseControl1!.CurrentImageChanged += OnImageChanged;
+                        this.Controls.Add(dBBrowseControl1);
+                    }
+                    dBBrowseControl1.InitBrowsing(file!);
+                    dBBrowseControl1!.Show();
                     break;
                 case AppView.FolderMediaDBBrowser:
+                    dBBrowseControl1?.Hide();
                     fileBrowseControl1?.Hide();
                     if (mediaDBControl1 == null)
                     {
-                        mediaDBControl1 = new MediaDBControl(file!, dbc);
+                        mediaDBControl1 = new MediaDBControl(Path.GetDirectoryName(file!)!, dbc);
                         //mediaDBControl1.SetImage(file);
                         this.Controls.Add(mediaDBControl1);
                     }
@@ -142,7 +166,7 @@ namespace AppUI
         private void FileInit(string startingFile)
         {
             lastFileFromFileSystem = startingFile;
-            SetBrowserControl(startingFile, AppView.FolderImageBrowser);
+            SetBrowserControl(startingFile, currentView);
         }
         private void FilelessInit()
         {
@@ -165,7 +189,7 @@ namespace AppUI
 
             using (OpenFileDialog openFileDialog1 = new OpenFileDialog())
             {
-                if(lastFileFromFileSystem != null)
+                if (lastFileFromFileSystem != null)
                 {
                     openFileDialog1.FileName = Path.GetFileName(lastFileFromFileSystem);
                 }
@@ -186,12 +210,58 @@ namespace AppUI
                     {
                         FileInit(openFileDialog1.FileName);
                     }
-                    catch (Exception exception){
+                    catch (Exception exception)
+                    {
                         var popup = MessageBox.Show("Failed to load file\n" + exception.Message);
                     }
 
                 }
             }
+        }
+
+        private void browseFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (browseFilesToolStripMenuItem.Checked) return;
+            else
+            {
+                // uncheck other views
+                browseDatabaseToolStripMenuItem.Checked = false;
+                addTagsToolStripMenuItem.Checked = false;
+            }
+            browseFilesToolStripMenuItem.Checked = true;
+            browseFilesToolStripMenuItem.CheckState = CheckState.Indeterminate;
+            currentView = AppView.FolderImageBrowser;
+            SetBrowserControl(lastFileFromFileSystem, AppView.FolderImageBrowser);
+        }
+
+        private void browseDatabaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (browseDatabaseToolStripMenuItem.Checked) return;
+            else
+            {
+                // uncheck other views
+                browseFilesToolStripMenuItem.Checked = false;
+                addTagsToolStripMenuItem.Checked = false;
+            }
+            browseDatabaseToolStripMenuItem.Checked = true;
+            browseDatabaseToolStripMenuItem.CheckState = CheckState.Indeterminate;
+            currentView = AppView.DatabaseImageBrowser;
+            SetBrowserControl(lastFileFromFileSystem, AppView.DatabaseImageBrowser);
+        }
+
+        private void addTagsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (addTagsToolStripMenuItem.Checked) return;
+            else
+            {
+                // uncheck other views
+                browseDatabaseToolStripMenuItem.Checked = false;
+                browseFilesToolStripMenuItem.Checked = false;
+            }
+            addTagsToolStripMenuItem.Checked = true;
+            addTagsToolStripMenuItem.CheckState = CheckState.Indeterminate;
+            currentView = AppView.FolderMediaDBBrowser;
+            SetBrowserControl(lastFileFromFileSystem, AppView.FolderMediaDBBrowser);
         }
     }
 }

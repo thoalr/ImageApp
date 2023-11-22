@@ -39,10 +39,11 @@
             browseFilesToolStripMenuItem = new ToolStripMenuItem();
             browseDatabaseToolStripMenuItem = new ToolStripMenuItem();
             addTagsToolStripMenuItem = new ToolStripMenuItem();
+            tagEditorToolStripMenuItem = new ToolStripMenuItem();
             modeToolStripMenuItem = new ToolStripMenuItem();
-            folderNavigationToolStripMenuItem = new ToolStripMenuItem();
-            dataToolStripMenuItem = new ToolStripMenuItem();
             comicMangaModeToolStripMenuItem = new ToolStripMenuItem();
+            mangaLeftToRightToolStripMenuItem = new ToolStripMenuItem();
+            comicLeftToRightToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -65,7 +66,7 @@
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(180, 22);
+            openToolStripMenuItem.Size = new Size(103, 22);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
@@ -96,60 +97,75 @@
             // 
             // viewToolStripMenuItem
             // 
-            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { browseFilesToolStripMenuItem, browseDatabaseToolStripMenuItem, addTagsToolStripMenuItem });
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { browseFilesToolStripMenuItem, browseDatabaseToolStripMenuItem, addTagsToolStripMenuItem, tagEditorToolStripMenuItem });
             viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             viewToolStripMenuItem.Size = new Size(44, 20);
             viewToolStripMenuItem.Text = "View";
             // 
             // browseFilesToolStripMenuItem
             // 
+            browseFilesToolStripMenuItem.Checked = true;
+            browseFilesToolStripMenuItem.CheckState = CheckState.Indeterminate;
             browseFilesToolStripMenuItem.Name = "browseFilesToolStripMenuItem";
             browseFilesToolStripMenuItem.Size = new Size(180, 22);
             browseFilesToolStripMenuItem.Text = "Browse Files";
+            browseFilesToolStripMenuItem.Click += browseFilesToolStripMenuItem_Click;
             // 
             // browseDatabaseToolStripMenuItem
             // 
             browseDatabaseToolStripMenuItem.Name = "browseDatabaseToolStripMenuItem";
             browseDatabaseToolStripMenuItem.Size = new Size(180, 22);
             browseDatabaseToolStripMenuItem.Text = "Browse Database";
+            browseDatabaseToolStripMenuItem.Click += browseDatabaseToolStripMenuItem_Click;
             // 
             // addTagsToolStripMenuItem
             // 
             addTagsToolStripMenuItem.Name = "addTagsToolStripMenuItem";
             addTagsToolStripMenuItem.Size = new Size(180, 22);
             addTagsToolStripMenuItem.Text = "Add Tags";
+            addTagsToolStripMenuItem.Click += addTagsToolStripMenuItem_Click;
+            // 
+            // tagEditorToolStripMenuItem
+            // 
+            tagEditorToolStripMenuItem.Name = "tagEditorToolStripMenuItem";
+            tagEditorToolStripMenuItem.Size = new Size(180, 22);
+            tagEditorToolStripMenuItem.Text = "Tag Editor";
             // 
             // modeToolStripMenuItem
             // 
-            modeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { folderNavigationToolStripMenuItem, dataToolStripMenuItem, comicMangaModeToolStripMenuItem });
+            modeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { comicMangaModeToolStripMenuItem });
             modeToolStripMenuItem.Name = "modeToolStripMenuItem";
             modeToolStripMenuItem.Size = new Size(50, 20);
             modeToolStripMenuItem.Text = "Mode";
             // 
-            // folderNavigationToolStripMenuItem
-            // 
-            folderNavigationToolStripMenuItem.Name = "folderNavigationToolStripMenuItem";
-            folderNavigationToolStripMenuItem.Size = new Size(185, 22);
-            folderNavigationToolStripMenuItem.Text = "Folder navigation";
-            folderNavigationToolStripMenuItem.Click += folderNavigationToolStripMenuItem_Click;
-            // 
-            // dataToolStripMenuItem
-            // 
-            dataToolStripMenuItem.Name = "dataToolStripMenuItem";
-            dataToolStripMenuItem.Size = new Size(185, 22);
-            dataToolStripMenuItem.Text = "Database";
-            // 
             // comicMangaModeToolStripMenuItem
             // 
+            comicMangaModeToolStripMenuItem.CheckOnClick = true;
+            comicMangaModeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { mangaLeftToRightToolStripMenuItem, comicLeftToRightToolStripMenuItem });
             comicMangaModeToolStripMenuItem.Name = "comicMangaModeToolStripMenuItem";
             comicMangaModeToolStripMenuItem.Size = new Size(185, 22);
             comicMangaModeToolStripMenuItem.Text = "Comic/Manga mode";
+            // 
+            // mangaLeftToRightToolStripMenuItem
+            // 
+            mangaLeftToRightToolStripMenuItem.Checked = true;
+            mangaLeftToRightToolStripMenuItem.CheckState = CheckState.Indeterminate;
+            mangaLeftToRightToolStripMenuItem.Name = "mangaLeftToRightToolStripMenuItem";
+            mangaLeftToRightToolStripMenuItem.Size = new Size(187, 22);
+            mangaLeftToRightToolStripMenuItem.Text = "Manga - Right to Left";
+            // 
+            // comicLeftToRightToolStripMenuItem
+            // 
+            comicLeftToRightToolStripMenuItem.Name = "comicLeftToRightToolStripMenuItem";
+            comicLeftToRightToolStripMenuItem.Size = new Size(187, 22);
+            comicLeftToRightToolStripMenuItem.Text = "Comic - Left to Right";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
+            BackColor = SystemColors.ControlDark;
             ClientSize = new Size(1194, 569);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
@@ -170,8 +186,6 @@
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem viewToolStripMenuItem;
         private ToolStripMenuItem modeToolStripMenuItem;
-        private ToolStripMenuItem folderNavigationToolStripMenuItem;
-        private ToolStripMenuItem dataToolStripMenuItem;
         private ToolStripMenuItem browseFilesToolStripMenuItem;
         private ToolStripMenuItem browseDatabaseToolStripMenuItem;
         private ToolStripMenuItem addTagsToolStripMenuItem;
@@ -179,5 +193,8 @@
         private ToolStripMenuItem tagTypesToolStripMenuItem;
         private ToolStripMenuItem groupToolStripMenuItem;
         private ToolStripMenuItem comicMangaModeToolStripMenuItem;
+        private ToolStripMenuItem mangaLeftToRightToolStripMenuItem;
+        private ToolStripMenuItem comicLeftToRightToolStripMenuItem;
+        private ToolStripMenuItem tagEditorToolStripMenuItem;
     }
 }

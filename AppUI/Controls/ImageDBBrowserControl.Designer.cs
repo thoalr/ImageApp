@@ -1,6 +1,6 @@
 ﻿namespace AppUI
 {
-    partial class ImageFileBrowseControl
+    partial class ImageDBBrowseControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -43,6 +43,7 @@
             textBox1.Size = new Size(791, 23);
             textBox1.TabIndex = 1;
             textBox1.TextChanged += textBox1_TextChanged;
+            textBox1.KeyDown += textBox1_KeyDown;
             // 
             // label1
             // 
@@ -86,12 +87,12 @@
             imageViewerControl1.MouseMove += imageViewerControl1_MouseMove;
             imageViewerControl1.MouseUp += imageViewerControl1_MouseUp;
             // 
-            // ImageFileBrowseControl
+            // ImageDBBrowseControl
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(tableLayoutPanel1);
-            Name = "ImageFileBrowseControl";
+            Name = "ImageDBBrowseControl";
             Size = new Size(878, 543);
             Load += ImageFileBrowseControl_Load;
             tableLayoutPanel1.ResumeLayout(false);

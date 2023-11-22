@@ -46,6 +46,7 @@ namespace AppUI
         {
 
             files = (Directory.EnumerateFiles(currentDirectory).ToList());
+            filteredFiles = files;
             var listItems = files.Select(f => new ListViewItem(Path.GetFileName(f))).ToArray();
             listView1.Columns.Add("File list", listItems.OrderByDescending(s => s.Text.Length).Select(s => (int)(s.Text.Length * 6.4)).FirstOrDefault(800));
             listView1.Items.AddRange(listItems);
@@ -101,7 +102,10 @@ namespace AppUI
                     .AsEnumerable();
 
             // xor for handling negative and positive searches
-            var newFileList = files.Select(f => Path.GetFileName(f)).Where(f => searchTerms.All(s => s.Negative ^ s.Wildcard.IsMatch(f)));
+            var newFileList = files
+                    .Select(f => new {FullPath = f, FileName = Path.GetFileName(f)})
+                    .Where(f => searchTerms.All(s => s.Negative ^ s.Wildcard.IsMatch(f.FileName)))
+                    .Select(f => f.FullPath);
             var newListItems = newFileList.Select(f => new ListViewItem(f)).ToArray();
             listView1.Columns.Clear();
             listView1.Columns.Add("File list", newListItems.OrderByDescending(s => s.Text.Length).Select(s => (int)(s.Text.Length * 6.4)).FirstOrDefault(800));

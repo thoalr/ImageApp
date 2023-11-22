@@ -27,5 +27,11 @@
 		<Using Remove="SixLabors.ImageSharp.PixelFormats" />
 		<Using Remove="SixLabors.ImageSharp.Processing" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Controls\ImageDBBrowserControl.cs">
+	    <SubType>UserControl</SubType>
+	  </Compile>
+	</ItemGroup>
 	
 </Project>

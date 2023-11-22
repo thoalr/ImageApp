@@ -22,24 +22,24 @@ namespace AppUI
         bool showDouble;
         bool leftToRight;
 
-        public EventHandler NextImage;
-        public EventHandler PrevImage;
+        public event EventHandler NextImage;
+        public event EventHandler PrevImage;
 
-        public EventHandler NextTwoImages;
-        public EventHandler PrevTwoImages;
+        public event EventHandler NextTwoImages;
+        public event EventHandler PrevTwoImages;
 
         Point? mouseLastPosition;
 
         SKPoint imageLocation;
         SKSize imageSize;
-        double imageZoom;
-        double zoomStep = 1.1;
+        float baseImageZoom = 1.0f;
+        float zoomStep = 1.1f;
+        int zoomLevel = 0;
 
         public ImageViewerControl()
         {
             InitializeComponent();
             imageLocation = new SKPoint(0, 0);
-            imageZoom = 1.0;
             showDouble = false;
             leftToRight = true;
             this.MouseWheel += ImageViewerControl_MouseWheel;
@@ -62,17 +62,17 @@ namespace AppUI
             image1 = SKBitmap.Decode(filePath);
             imageSize = new SKSize(image1.Width, image1.Height);
 
-            InitCenterSizeToFitImage();
+            InitCenterImageSizeToFit();
         }
 
         public void SetImage(SKBitmap image)
         {
             image1 = image;
             imageSize = new SKSize(image.Width, image.Height);
-            InitCenterSizeToFitImage();
+            InitCenterImageSizeToFit();
         }
 
-        void InitCenterSizeToFitImage()
+        void InitCenterImageSizeToFit()
         {
             if (showDouble)
             {
@@ -83,8 +83,8 @@ namespace AppUI
                 if (image1 == null) return;
                 var w = image1.Width;
                 var h = image1.Height;
-                var heightRatio = h / (double)this.Height;
-                var widthRatio = w / (double)this.Width;
+                var heightRatio = h / (float)skglControl1.Height;
+                var widthRatio = w / (float)skglControl1.Width;
                 int destHeight;
                 int destWidth;
                 if (heightRatio >= widthRatio)
@@ -94,18 +94,18 @@ namespace AppUI
                 }
                 else
                 {
-                    destWidth = this.Width;
+                    destWidth = skglControl1.Width;
                     destHeight = (int)(h / widthRatio);
                 }
                 var targetY = (this.Height - destHeight) / 2;
-                var targetX = (this.Width - destWidth) / 2;
+                var targetX = (skglControl1.Width - destWidth) / 2;
                 this.imageLocation = new SKPoint(targetX, targetY);
                 this.imageSize = new SKSize(destWidth, destHeight);
-                this.imageZoom = imageSize.Height / image1.Height;
+                this.baseImageZoom = imageSize.Height / image1.Height;
             }
         }
 
-        void CenterImage()
+        void KeepImageWithinBounds()
         {
             if (showDouble)
             {
@@ -114,13 +114,45 @@ namespace AppUI
             else
             {
                 if (image1 == null) return;
-                var w = image1.Width * imageZoom;
-                var h = image1.Height * imageZoom;
-                var heightRatio = h / this.Height;
-                var widthRatio = w / this.Width;
+                var w = imageSize.Width;
+                var h = imageSize.Height;
+                //var heightRatio = h / this.Height;
+                //var widthRatio = w / skglControl1.Width;
 
-                var targetX = (this.Height - h) / 2;
-                var targetY = (this.Width - w) / 2;
+                var targetX = imageLocation.X;
+                var targetY = imageLocation.Y;
+
+                if ( w <= skglControl1.Width)
+                {
+                    targetX = (skglControl1.Width - w) / 2;
+                }
+                else
+                {
+                    if( targetX > skglControl1.Width / 2)
+                    {
+                        targetX = skglControl1.Width / 2;
+                    }
+                    else if (targetX < -skglControl1.Width / 2)
+                    {
+                        targetX = -skglControl1.Width / 2;
+                    }
+                }
+                if ( h <= skglControl1.Height)
+                {
+                    targetY = (this.Height - h) / 2;
+                }
+                else
+                {
+                    if (targetY > skglControl1.Height / 2)
+                    {
+                        targetY = skglControl1.Height / 2;
+                    }
+                    else if (targetY < -skglControl1.Height / 2)
+                    {
+                        targetY = -skglControl1.Height / 2;
+                    }
+                }
+
                 this.imageLocation = new SKPoint((float)targetX, (float)targetY);
                 //this.imageZoom = imageSize.Height / image1.Height;
             }
@@ -147,49 +179,18 @@ namespace AppUI
             if (image1 != null)
             {
                 skcanvas.Clear();
-                var rect = new SKRect(imageLocation.X, imageLocation.Y + imageSize.Height, imageLocation.X + imageSize.Width, imageLocation.Y);
-                rect = SKRect.Create(this.imageLocation, imageSize);
+                //var rect = new SKRect(imageLocation.X, imageLocation.Y + imageSize.Height, imageLocation.X + imageSize.Width, imageLocation.Y);
+                SKRect rect = SKRect.Create(this.imageLocation, imageSize);
                 skcanvas.DrawBitmap(image1, rect);
             }
         }
 
 
-        private void skglControl1_MouseDown(object sender, MouseEventArgs e)
-        {
-            this.Capture = true;
-            var success = skglControl1.Focus();
-            if (!success)
-            {
-                bool canF = CanFocus;
-            }
-        }
-
-        private void skglControl1_MouseMove(object sender, MouseEventArgs e)
-        {
-
-            if (this.Capture)
-            {
-                if (mouseLastPosition == null)
-                {
-                    mouseLastPosition = e.Location;
-                    return;
-                }
-                var mouseDelta = new Point(e.X - mouseLastPosition!.Value.X, e.Y - mouseLastPosition!.Value.Y);
-                var newLocation = new SKPoint(this.imageLocation.X + mouseDelta.X, this.imageLocation.Y + mouseDelta.Y);
-                if (newLocation.X < 0) { newLocation.X = 0; }
-                if (newLocation.Y < 0) { newLocation.Y = 0; }
-                if (newLocation.X + imageSize.Width > this.Width) { newLocation.X = this.Width - imageSize.Width; }
-                if (newLocation.Y + imageSize.Height > this.Height) { newLocation.Y = this.Height - imageSize.Height; }
-                this.imageLocation = newLocation;
-
-                skglControl1.Invalidate();
-                this.mouseLastPosition = e.Location;
-            }
-        }
 
         private void skglControl1_MouseUp(object sender, MouseEventArgs e)
         {
-            this.Capture = false;
+            skglControl1.Capture = false;
+            this.mouseLastPosition = null;
         }
 
         private void skglControl1_KeyDown(object sender, KeyEventArgs e)
@@ -211,7 +212,16 @@ namespace AppUI
 
         private void skglControl1_Resize(object sender, EventArgs e)
         {
+            if (image1 == null) return;
 
+            var oldSize = new SKSize(imageSize.Width, imageSize.Height);
+            var oldLocation = new SKPoint(imageLocation.X, imageLocation.Y);
+
+            InitCenterImageSizeToFit();
+            imageSize = oldSize;
+            imageSize = getZoomedSize();
+            imageLocation.X += (oldSize.Width - imageSize.Width) / 2;
+            imageLocation.Y += (oldSize.Height - imageSize.Height) / 2;
         }
 
         const int WM_MOUSEWHEEL = 0x020a;
@@ -239,38 +249,60 @@ namespace AppUI
             base.WndProc(ref m);
         }
 
+        int numberOfZooms = 0;
         private void ImageViewerControl_MouseWheel(object? sender, MouseEventArgs e)
         {
-            OnMouseWheel(e.Delta);
-        }
+            numberOfZooms++;
+            var delta = e.Delta;
+            var oldSize = new SKSize(imageSize.Width, imageSize.Height);
 
-        private void OnMouseWheel(int delta)
-        {
+            var zoomPoint = new SKPoint(e.Location.X - imageLocation.X, e.Location.Y - imageLocation.Y);
+
             if (delta > 0)
             {
-                imageZoom = imageZoom * zoomStep;
+                zoomLevel++;
             }
             else
             {
-                imageZoom = imageZoom / zoomStep;
+                zoomLevel--;
             }
-            CenterImage();
+            imageSize = getZoomedSize();
+            imageLocation.X -= zoomPoint.X * (imageSize.Width - oldSize.Width) / oldSize.Width;
+            imageLocation.Y -= zoomPoint.Y * (imageSize.Width - oldSize.Width) / oldSize.Width;
+            //CenterImage();
+
+
             skglControl1.Invalidate();
         }
 
-        private void skglControl1_DoubleClick(object sender, EventArgs e)
+        private float applyZoom(float value)
         {
-            // TODO: set this control as fullscreen
+            if (zoomLevel < 0)
+            {
+                for (int i = 0; i < -zoomLevel; i++) { value /= zoomStep; }
+            }
+            else
+            {
+                for (int i = 0; i < zoomLevel; i++) { value *= zoomStep; }
+            }
+            return value;
+        }
+
+        private SKSize getZoomedSize()
+        {
+            float zoomedWidth = applyZoom(image1!.Width * baseImageZoom);
+            float zoomedHeight = applyZoom(image1!.Height * baseImageZoom);
+            return new SKSize(zoomedWidth, zoomedHeight);
         }
 
         private void ImageViewerControl_MouseMove(object sender, MouseEventArgs e)
         {
-            skglControl1_MouseMove(sender, e);
+            
         }
 
         private void ImageViewerControl_MouseDown(object sender, MouseEventArgs e)
         {
-            skglControl1_MouseDown(sender, e);
+            
         }
 
         private void ImageViewerControl_MouseUp(object sender, MouseEventArgs e)
@@ -280,7 +312,7 @@ namespace AppUI
 
         private void ImageViewerControl_KeyDown(object sender, KeyEventArgs e)
         {
-            skglControl1_KeyDown(sender, e);
+            //skglControl1_KeyDown(sender, e);
         }
 
         private void ImageViewerControl_DoubleClick(object sender, EventArgs e)
@@ -292,5 +324,37 @@ namespace AppUI
         {
 
         }
+
+        private void skglControl1_MouseDown(object sender, MouseEventArgs e)
+        {
+            skglControl1.Capture = true;
+            var success = skglControl1.Focus();
+            if (!success)
+            {
+                bool canF = CanFocus;
+            }
+        }
+
+        private void skglControl1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (skglControl1.Capture)
+            {
+                if (mouseLastPosition == null)
+                {
+                    mouseLastPosition = e.Location;
+                    return;
+                }
+                var mouseDelta = new SKPoint(e.X - mouseLastPosition!.Value.X, e.Y - mouseLastPosition!.Value.Y);
+                var newLocation = new SKPoint(this.imageLocation.X + mouseDelta.X, this.imageLocation.Y + mouseDelta.Y);
+                
+                this.imageLocation = newLocation;
+                KeepImageWithinBounds();
+
+                this.mouseLastPosition = e.Location;
+                skglControl1.Invalidate();
+            }
+        }
+
+        
     }
 }
